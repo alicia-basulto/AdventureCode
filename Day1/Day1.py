@@ -1,3 +1,4 @@
+import re
 def first_challenge(filename):
     try:
         sum_total = 0
