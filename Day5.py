@@ -3,11 +3,10 @@ from math import factorial
 
 limits = {}
 result = {}
-def second_part(counter, id, total, scratchcards ):
-    id= int(id)
-    for i in range(counter):
-            # If the list has up to 2 elements, add the value of entire_number
-            scratchcards[id+i+1] += scratchcards[id]
+new_seeds = []
+solution= []
+location_dict_2={}
+
 
 
 def map_generator(origin, destination, range, map_identifier):
@@ -29,6 +28,34 @@ def location_calculator(seed,limits_list):
             result = seed
 
         return result
+
+
+def second_challenge(seeds):
+    # Split the list into pairs
+
+    pairs = [(seeds[i], seeds[i + 1]) for i in range(0, len(seeds), 2)]
+    for individual_pair in pairs:
+        for i in range (individual_pair[0], (individual_pair[0]-1) + individual_pair[1]):
+            new_seeds.append(i)
+    for pair in pairs:
+        pair = [pair[0], (pair[0]-1) + pair[1]]
+        new_range = pair
+        for key, section in limits.items():
+            intersection_range = find_range(new_range, section)
+            if not intersection_range:
+                result_in_map_2(new_range, key)
+                break
+            new_range = [(new_range[0]-intersection_range[0]) + intersection_range[2], (new_range[0]-intersection_range[0]) + intersection_range[2] + (new_range[1]-new_range[0])]
+    print(f"Second part:The minimum value of the location is '{min(solution)}'.")
+
+def find_range(rango_a_verificar, lista_de_rangos):
+    for rango in lista_de_rangos:
+        inicio_interseccion = max(rango_a_verificar[0], rango[0])
+        fin_interseccion = min(rango_a_verificar[1], rango[1])
+        # Verificar si hay intersección
+        if inicio_interseccion <= fin_interseccion:
+            return rango # Hay intersección con al menos un rango
+    return False  # No hay intersección con ninguno de los rangos
 
 
 
@@ -57,6 +84,7 @@ def fourth_challenge(filename):
         input_to_map(input_parsed)
 
         first_challenge(location_dict, seeds)
+        second_challenge(seeds)
 
     except FileNotFoundError:
         print("The file does not exist.")
@@ -69,9 +97,26 @@ def first_challenge(location_dict, seeds):
         location_dict[key] = location
     if location_dict:
         min_value_location = min(location_dict.values())
-        print(f"The minimum value of the location is '{min_value_location}'.")
+        print(f"First part: the minimum value of the location is '{min_value_location}'.")
     else:
         print(f"No coincidence found")
+
+
+def result_in_map_2(seeds, id_key):
+    loop_execution = False
+    min_value = float('inf')  # Initialize min_value with positive infinity
+
+    for seed in range(seeds[0], seeds[1]):
+        next_seed = seed
+        for key, value in limits.items():
+            if key == id_key:
+                loop_execution = True
+            if loop_execution:
+                next_seed = location_calculator(next_seed, value)
+                if key == 'humidity,location':
+                    min_value = min(min_value, next_seed)
+
+    solution.append(min_value)
 
 
 def result_in_map(seeds):
